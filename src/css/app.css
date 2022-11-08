@@ -1,1 +1,22 @@
 /* app global css */
+
+@font-face {
+  font-family: Poppins;
+  src: url(./fonts/poppins-v20-latin-regular.woff);
+}
+
+.poppins {
+  font-family: "Poppins";
+}
+
+.fnt-size-16 {
+  font-size: 16px;
+}
+
+.fnt-size-18 {
+  font-size: 18px;
+}
+
+.fnt-size-20 {
+  font-size: 20px;
+}

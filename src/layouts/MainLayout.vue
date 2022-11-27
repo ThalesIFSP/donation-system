@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar>
+      <q-toolbar style="background-color: #4161d3">
         <q-btn
           flat
           dense
@@ -11,11 +11,21 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Doe Mais </q-toolbar-title>
+        <q-toolbar-title>
+          <img
+            alt="Sem desperdício sem fome logo."
+            src="~assets/logoRetanguloBranco.png"
+            style="width: 400px; height: 106px"
+        /></q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      content-class="column justify-between no-wrap bg-grey-1"
+    >
       <div class="text-h5 poppins">
         <q-list>
           <q-item-label header class="text-h4 poppins"> Navegar </q-item-label>
@@ -27,6 +37,16 @@
           />
         </q-list>
       </div>
+      <q-item class="column footer">
+        <q-item-section>
+          <q-item-label caption class="fnt-size-20">Contato</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="fnt-size-14 contactText"
+            >semdesperdiciosemfome@gmail.com</q-item-label
+          >
+        </q-item-section>
+      </q-item>
     </q-drawer>
 
     <q-page-container>
@@ -47,16 +67,16 @@ const linksList = [
     link: "my_profile",
   },
   {
-    title: "Organization",
-    caption: "Organização",
+    title: "Charity",
+    caption: "Instituição",
     icon: "home",
-    link: "https://github.com/quasarframework",
+    link: "organization",
   },
   {
     title: "Moderator",
     caption: "Moderadores",
     icon: "add_moderator",
-    link: "https://chat.quasar.dev",
+    link: "moderators",
   },
 ];
 
@@ -76,7 +96,19 @@ export default defineComponent({
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      active: ref(""),
     };
   },
 });
 </script>
+
+<style scoped>
+.footer {
+  position: absolute;
+  bottom: 2%;
+}
+
+.contactText {
+  text-decoration: underline;
+}
+</style>

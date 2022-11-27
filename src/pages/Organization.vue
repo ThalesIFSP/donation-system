@@ -11,12 +11,37 @@
       </q-card-section>
     </q-card>
 
-    <h4 class="q-ma-lg">Conta</h4>
+    <h4 class="q-ma-lg">Instituição</h4>
 
     <!-- Line 1 Nome -->
     <div class="row col-12">
-      <div class="col-5 q-ma-lg q-px-lg">
-        <span class="fnt-regular fnt-size-20">Nome Completo</span>
+      <div class="col-3 q-ma-lg q-px-lg">
+        <span class="fnt-regular fnt-size-20">Logo</span>
+        <q-file
+          color="#4161d3"
+          outlined
+          v-model="logo"
+          label="Logo 150x150 pixels"
+          @update:model-value="(val) => updateFile(val)"
+        >
+          <template v-slot:prepend>
+            <q-icon name="cloud_upload" />
+          </template>
+        </q-file>
+      </div>
+      <div class="col-7 q-ma-lg q-px-lg">
+        <img
+          alt="Logo image."
+          :src="logoUrl"
+          style="width: 250px; height: 250px"
+        />
+      </div>
+    </div>
+
+    <!-- Line 1 Nome -->
+    <div class="row col-12">
+      <div class="col-7 q-ma-lg q-px-lg">
+        <span class="fnt-regular fnt-size-20">Nome da Instituição</span>
         <q-input
           placeholder="Nome"
           class="poppins fnt-size-18"
@@ -26,56 +51,22 @@
           lazy-rules
         />
       </div>
-      <div class="col-5 q-ma-lg q-px-lg">
-        <span class="fnt-regular fnt-size-20">CNPJ</span>
-        <q-input
-          readonly
-          placeholder="XXXX.XXX.XXX/XXX-XX"
-          class="poppins fnt-size-18"
-          v-model="cnpj"
-          lazy-rules
-        />
-      </div>
     </div>
 
     <!-- Line 2 EMAIL -->
     <div class="row col-12">
-      <div class="col-5 q-ma-lg q-px-lg">
-        <span class="fnt-regular fnt-size-20">E-mail</span>
+      <div class="col-11 q-ma-lg q-px-lg">
+        <span class="fnt-regular fnt-size-20">Descrição</span>
         <q-input
-          placeholder="example@email.com"
+          type="textarea"
+          placeholder="Descrição da instituição"
           class="poppins fnt-size-18"
-          v-model="email"
-          :rules="formRules.email"
+          v-model="description"
           :error="!!emailError"
           :error-message="emailError"
           lazy-rules
-          aria-autocomplete="email"
+          outlined
         />
-      </div>
-
-      <div class="col-5 q-ma-lg q-px-lg">
-        <span class="fnt-regular fnt-size-20">Senha</span>
-
-        <q-input
-          placeholder="Senha"
-          class="poppins fnt-size-18"
-          v-model="password"
-          :type="passwordVisible ? 'text' : 'password'"
-          :rules="formRules.password"
-          :error="!!passwordError"
-          :error-message="passwordError"
-          lazy-rules
-          aria-autocomplete="password"
-        >
-          <template v-slot:append>
-            <q-icon
-              :name="passwordVisible ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="passwordVisible = !passwordVisible"
-            />
-          </template>
-        </q-input>
       </div>
     </div>
 
@@ -151,7 +142,8 @@
       </div>
     </div>
 
-    <div class="row col-12">
+    <!-- Line 5 Botão Editar -->
+    <div class="row col-12 q-mb-xl">
       <span class="col-3"></span>
       <q-btn
         :loading="handlingEdit"
@@ -174,7 +166,7 @@
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
-  name: "ProfilePage",
+  name: "OrganizationPage",
   data() {
     const handlingEdit = ref(false);
 
@@ -185,15 +177,14 @@ export default defineComponent({
 
       // Form variables
       name: null,
-      cnpj: "55.555.555/0001-55",
+      description: null,
+      file: null,
       cep: null,
       city: null,
       uf: null,
       street: null,
       number: null,
       district: null,
-      email: null,
-      password: null,
 
       formRules: this.parseFormRules([
         {
@@ -226,7 +217,19 @@ export default defineComponent({
       formError: null,
     };
   },
+  setup() {
+    const logo = ref(null);
+    const logoUrl = ref("");
 
+    return {
+      logo,
+      logoUrl,
+
+      updateFile(val) {
+        logoUrl.value = URL.createObjectURL(logo.value);
+      },
+    };
+  },
   computed: {
     emailError() {
       if (this.formError) {

@@ -1,11 +1,11 @@
 <template>
   <q-item clickable v-ripple :to="{ name: link }">
     <q-item-section v-if="icon" avatar>
-      <q-icon :name="icon" />
+      <q-icon :name="icon" style="color: #4161d3" size="30px" />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label caption>{{ caption }}</q-item-label>
+      <q-item-label caption class="fnt-size-20">{{ caption }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>

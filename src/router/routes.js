@@ -17,7 +17,6 @@ const routes = [
       { path: "", name: "sign_in", component: () => import("pages/Login.vue") },
     ],
   },
-
   {
     path: "/myprofile",
     component: () => import("layouts/MainLayout.vue"),
@@ -26,6 +25,28 @@ const routes = [
         path: "",
         name: "my_profile",
         component: () => import("pages/MyProfile.vue"),
+      },
+    ],
+  },
+  {
+    path: "/organization",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "organization",
+        component: () => import("pages/Organization.vue"),
+      },
+    ],
+  },
+  {
+    path: "/moderators",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "moderators",
+        component: () => import("pages/Moderators.vue"),
       },
     ],
   },

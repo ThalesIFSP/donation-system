@@ -10,6 +10,10 @@
 }
 
 .fnt-size-16 {
+  font-size: 14px;
+}
+
+.fnt-size-16 {
   font-size: 16px;
 }
 
@@ -19,4 +23,8 @@
 
 .fnt-size-20 {
   font-size: 20px;
+}
+
+.flex-row {
+  flex-direction: row;
 }

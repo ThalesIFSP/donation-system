@@ -1,67 +1,83 @@
 <template>
-  <div id="sign-in">
-    <h2 class="poppins">Doe Mais</h2>
-    <p class="text-grey-8 poppins fnt-size-16">
-      Insira suas credenciais abaixo para acessar o seu portal.
-    </p>
-
-    <q-form ref="signInForm" @submit="handleSignIn">
+  <q-page
+    class="window-height window-width row justify-center items-center"
+    style="background: linear-gradient(#4161d3, #fff)"
+  >
+    <div id="sign-in">
       <q-card
-        v-if="!!formError && !emailError && !passwordError"
-        class="bg-red text-white q-my-md shadow-0"
+        square
+        class="shadow-24 q-pr-lg q-pl-lg"
+        style="width: 520px; height: 540px"
       >
-        <q-card-section>
-          <q-icon name="warning" color="white" class="q-mr-sm" />
+        <img
+          alt="Sem desperdício sem fome logo."
+          src="~assets/logoRetangulo.png"
+          style="width: 500px; height: 250px"
+        />
+        <p class="text-grey-8 poppins fnt-size-16">
+          Insira suas credenciais para acessar o portal.
+        </p>
 
-          {{
-            dig(formError, ["error", "message"]) || dig(formError, ["error"])
-          }}
-        </q-card-section>
-      </q-card>
+        <q-form ref="signInForm" @submit="handleSignIn">
+          <q-card
+            v-if="!!formError && !emailError && !passwordError"
+            class="bg-red text-white q-my-md shadow-0"
+          >
+            <q-card-section>
+              <q-icon name="warning" color="white" class="q-mr-sm" />
 
-      <q-input
-        placeholder="E-mail"
-        class="poppins fnt-size-16"
-        v-model="email"
-        :rules="formRules.email"
-        :error="!!emailError"
-        :error-message="emailError"
-        lazy-rules
-        aria-autocomplete="email"
-      />
+              {{
+                dig(formError, ["error", "message"]) ||
+                dig(formError, ["error"])
+              }}
+            </q-card-section>
+          </q-card>
 
-      <q-input
-        placeholder="Senha"
-        class="poppins fnt-size-16"
-        v-model="password"
-        :type="passwordVisible ? 'text' : 'password'"
-        :rules="formRules.password"
-        :error="!!passwordError"
-        :error-message="passwordError"
-        lazy-rules
-        aria-autocomplete="password"
-      >
-        <template v-slot:append>
-          <q-icon
-            :name="passwordVisible ? 'visibility_off' : 'visibility'"
-            class="cursor-pointer"
-            @click="passwordVisible = !passwordVisible"
+          <q-input
+            placeholder="E-mail"
+            class="poppins fnt-size-16"
+            v-model="email"
+            :rules="formRules.email"
+            :error="!!emailError"
+            :error-message="emailError"
+            lazy-rules
+            aria-autocomplete="email"
           />
-        </template>
-      </q-input>
 
-      <q-btn
-        label="Entrar"
-        type="submit"
-        flat
-        dense
-        no-caps
-        class="full-width btn-signin text-bold q-mb-md q-mt-sm poppins fnt-size-16"
-        :loading="handlingSignIn"
-        push
-      />
-    </q-form>
-  </div>
+          <q-input
+            placeholder="Senha"
+            class="poppins fnt-size-16"
+            v-model="password"
+            :type="passwordVisible ? 'text' : 'password'"
+            :rules="formRules.password"
+            :error="!!passwordError"
+            :error-message="passwordError"
+            lazy-rules
+            aria-autocomplete="password"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="passwordVisible ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="passwordVisible = !passwordVisible"
+              />
+            </template>
+          </q-input>
+
+          <q-btn
+            label="Entrar"
+            type="submit"
+            flat
+            dense
+            no-caps
+            class="full-width btn-signin text-bold q-mb-md q-mt-sm poppins fnt-size-20"
+            :loading="handlingSignIn"
+            push
+          />
+        </q-form>
+      </q-card>
+    </div>
+  </q-page>
 </template>
 
 <script>
@@ -158,10 +174,11 @@ export default {
 
 <style scoped>
 .btn-signin {
-  background-color: white;
+  background-color: #4161d3;
 
-  border: solid 1px blue;
-  color: blue;
+  border: solid 1px #4161d3;
+  border-radius: 40px;
+  color: white;
 }
 
 .btn-recovery-password {

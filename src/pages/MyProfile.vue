@@ -61,12 +61,10 @@
           placeholder="Senha"
           class="poppins fnt-size-18"
           v-model="password"
-          :type="passwordVisible ? 'text' : 'password'"
-          :rules="formRules.password"
-          :error="!!passwordError"
-          :error-message="passwordError"
+          type="text"
           lazy-rules
           aria-autocomplete="password"
+          disable="true"
         >
           <template v-slot:append>
             <q-icon
@@ -173,7 +171,6 @@
 <script>
 import { api } from "src/boot/axios";
 import { defineComponent, ref } from "vue";
-import { Cookies } from "quasar";
 
 export default defineComponent({
   name: "ProfilePage",
@@ -230,8 +227,25 @@ export default defineComponent({
   },
 
   created() {
-    //const user = Cookies.get("@user");
-    api.get("/api/user/6").then((res) => console.log(res, "<--res"));
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user, "<-- user");
+    api
+      .get("/api/user/" + user.idt, {
+        auth: { username: "thalesinfoifsp@gmail.com", password: "thaleslindo" },
+      })
+      .then((res) => {
+        const data = res.data;
+        this.name = data.name;
+        this.cnpj = data.document;
+        this.email = data.email;
+        this.cep = data.address.cep;
+        this.city = data.address.city;
+        this.uf = data.address.state;
+        this.street = data.address.street;
+        this.number = data.address.number;
+        this.district = data.address.district;
+        this.password = "*********************";
+      });
   },
 
   computed: {

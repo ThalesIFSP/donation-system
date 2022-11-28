@@ -167,28 +167,18 @@ export default {
 
           this.handlingSignIn = true;
           api
-            .post(
-              "/api/user/login",
-              {
-                email: this.email,
-                pass: this.password,
-              },
-              {
-                auth: {
-                  email: this.email,
-                  password: this.password,
-                },
-              }
-            )
+            .post("/api/user/login", {
+              email: this.email,
+              pass: this.password,
+            })
             .then((res) => {
-              console.log(res.data);
-              localStorage.setItem("user", res.data);
+              localStorage.setItem("user", JSON.stringify(res.data));
 
               this.$router.push({ name: "home" });
             })
             .catch((err) => {
               this.handlingSignIn = false;
-              console.log(err);
+              console.log(err, "<--ERR");
             });
         }
       });

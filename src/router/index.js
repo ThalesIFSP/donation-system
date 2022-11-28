@@ -35,11 +35,12 @@ export default route(function (/* { store, ssrContext } */) {
 
   Router.beforeEach((to, from, next) => {
     var tokenValidation = localStorage.getItem("user");
+
     if (
       to.matched.some((record) => record.meta.requireLogin) &&
-      tokenValidation !== null
+      tokenValidation === null
     ) {
-      next({ path: "login" });
+      next({ path: "/login" });
     } else {
       next();
     }

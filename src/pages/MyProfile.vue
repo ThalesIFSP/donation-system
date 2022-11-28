@@ -171,7 +171,9 @@
 </template>
 
 <script>
+import { api } from "src/boot/axios";
 import { defineComponent, ref } from "vue";
+import { Cookies } from "quasar";
 
 export default defineComponent({
   name: "ProfilePage",
@@ -225,6 +227,11 @@ export default defineComponent({
 
       formError: null,
     };
+  },
+
+  created() {
+    //const user = Cookies.get("@user");
+    api.get("/api/user/6").then((res) => console.log(res, "<--res"));
   },
 
   computed: {

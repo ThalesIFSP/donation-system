@@ -9,6 +9,7 @@ const routes = [
         component: () => import("pages/IndexPage.vue"),
       },
     ],
+    meta: { requireLogin: true },
   },
   {
     path: "/login",
@@ -27,6 +28,7 @@ const routes = [
         component: () => import("pages/MyProfile.vue"),
       },
     ],
+    meta: { requireLogin: true },
   },
   {
     path: "/organization",
@@ -38,6 +40,7 @@ const routes = [
         component: () => import("pages/Organization.vue"),
       },
     ],
+    meta: { requireLogin: true },
   },
   {
     path: "/moderators",
@@ -49,6 +52,7 @@ const routes = [
         component: () => import("pages/Moderators.vue"),
       },
     ],
+    meta: { requireLogin: true },
   },
 
   // Always leave this as last one,

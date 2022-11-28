@@ -81,6 +81,9 @@
 </template>
 
 <script>
+import { api } from "src/boot/axios";
+import { Cookies } from "quasar";
+
 export default {
   name: "LoginPage",
 
@@ -163,8 +166,30 @@ export default {
           this.formError = null;
 
           this.handlingSignIn = true;
+          api
+            .post(
+              "/api/user/login",
+              {
+                email: this.email,
+                pass: this.password,
+              },
+              {
+                auth: {
+                  email: this.email,
+                  password: this.password,
+                },
+              }
+            )
+            .then((res) => {
+              console.log(res.data);
+              localStorage.setItem("user", res.data);
 
-          this.$router.push({ name: "home" });
+              this.$router.push({ name: "home" });
+            })
+            .catch((err) => {
+              this.handlingSignIn = false;
+              console.log(err);
+            });
         }
       });
     },

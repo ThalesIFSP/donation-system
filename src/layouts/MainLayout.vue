@@ -78,6 +78,12 @@ const linksList = [
     icon: "add_moderator",
     link: "moderators",
   },
+  {
+    title: "Donations",
+    caption: "Solicitações",
+    icon: "volunteer_activism",
+    link: "donations",
+  },
 ];
 
 export default defineComponent({

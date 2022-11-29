@@ -228,7 +228,7 @@ export default defineComponent({
 
   created() {
     const user = JSON.parse(localStorage.getItem("user"));
-    console.log(user, "<-- user");
+
     api
       .get("/api/user/" + user.idt, {
         auth: { username: "thalesinfoifsp@gmail.com", password: "thaleslindo" },
@@ -238,13 +238,14 @@ export default defineComponent({
         this.name = data.name;
         this.cnpj = data.document;
         this.email = data.email;
+        this.password = "*********************";
+
         this.cep = data.address.cep;
         this.city = data.address.city;
         this.uf = data.address.state;
         this.street = data.address.street;
         this.number = data.address.number;
         this.district = data.address.district;
-        this.password = "*********************";
       });
   },
 

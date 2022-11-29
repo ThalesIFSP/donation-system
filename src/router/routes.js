@@ -54,6 +54,18 @@ const routes = [
     ],
     meta: { requireLogin: true },
   },
+  {
+    path: "/donations",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "donations",
+        component: () => import("pages/Donations.vue"),
+      },
+    ],
+    meta: { requireLogin: true },
+  },
 
   // Always leave this as last one,
   // but you can also remove it

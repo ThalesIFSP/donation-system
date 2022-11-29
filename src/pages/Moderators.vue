@@ -38,11 +38,11 @@
       </q-bar>
 
       <q-card-section>
-        <div class="text-h6">{{ moderators[selected].name }}</div>
+        <div class="text-h6">{{ name }}</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-form ref="editForm" @submit="handleSignIn" class="row">
+        <q-form ref="editForm" @submit="handleEditInfo" class="row">
           <q-card
             v-if="!!formError && !emailError && !passwordError"
             class="bg-red text-white q-my-md shadow-0"
@@ -82,6 +82,7 @@
                 :error="!!emailError"
                 :error-message="emailError"
                 lazy-rules
+                disable
               />
             </div>
             <div class="col-4 q-ma-lg q-px-lg">
@@ -93,6 +94,7 @@
                 :error="!!emailError"
                 :error-message="emailError"
                 lazy-rules
+                disable
               />
             </div>
             <div class="col-1 q-ma-lg q-px-lg">
@@ -102,6 +104,7 @@
                 class="poppins fnt-size-18"
                 v-model="uf"
                 lazy-rules
+                disable
               />
             </div>
           </div>
@@ -117,6 +120,7 @@
                 :error="!!emailError"
                 :error-message="emailError"
                 lazy-rules
+                disable
               />
             </div>
             <div class="col-1 q-ma-lg q-px-lg">
@@ -128,6 +132,7 @@
                 :error="!!emailError"
                 :error-message="emailError"
                 lazy-rules
+                disable
               />
             </div>
             <div class="col-4 q-ma-lg q-px-lg">
@@ -137,6 +142,7 @@
                 class="poppins fnt-size-18"
                 v-model="district"
                 lazy-rules
+                disable
               />
             </div>
           </div>
@@ -144,11 +150,11 @@
           <div class="row col-12">
             <span class="col-3"></span>
             <q-btn
-              color="red"
               @click="dialog = false"
               class="poppins text-h4 col-1 text-black"
               no-caps
-              outline
+              flat
+              style="background-color: transparent"
             >
               Voltar
             </q-btn>
@@ -207,7 +213,7 @@
 
       <q-card-section class="q-pt-none">
         <q-checkbox
-          v-model="canEdit"
+          v-model="canEditCreate"
           label="Permitir edição"
           class="fnt-size-18"
           size="md"
@@ -238,24 +244,32 @@
     v-for="(item, index) in moderators"
     :key="index"
   >
-    <q-item
-      clickable
-      v-ripple
-      class="q-ma-sm"
-      @click="
-        dialog = true;
-        selected = index;
-      "
-    >
-      <q-item-section>{{ item.name }}</q-item-section>
-      <q-item-section avatar>
+    <q-item v-ripple class="q-ma-sm">
+      <q-item-section
+        @click="selectModerator(JSON.stringify(item))"
+        style="cursor: pointer"
+        >{{ item.user.name }}</q-item-section
+      >
+      <q-item-section
+        avatar
+        @click="selectModerator(JSON.stringify(item))"
+        style="cursor: pointer"
+      >
         <q-icon style="color: #4161d3" name="edit" />
+      </q-item-section>
+      <q-item-section
+        avatar
+        @click="deleteModerator(JSON.stringify(item))"
+        style="cursor: pointer"
+      >
+        <q-icon style="color: red" name="remove" />
       </q-item-section>
     </q-item>
   </q-list>
 </template>
 
 <script>
+import { api } from "src/boot/axios";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
@@ -268,6 +282,9 @@ export default defineComponent({
       passwordVisible: false,
       handlingEdit,
 
+      idCharity: null,
+      moderatorCanEdit: null,
+
       // Form variables
       name: null,
       cnpj: null,
@@ -279,6 +296,7 @@ export default defineComponent({
       district: null,
       email: null,
       password: null,
+      moderators: [],
 
       formRules: this.parseFormRules([
         {
@@ -307,24 +325,41 @@ export default defineComponent({
       ]),
 
       // Error variables
-
       formError: null,
     };
   },
+  created() {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    api
+      .get("/api/moderator/" + user.moderatorId, {
+        auth: { username: "thalesinfoifsp@gmail.com", password: "thaleslindo" },
+      })
+      .then((res) => {
+        const data = res.data;
+        this.moderatorCanEdit = data.canEdit;
+        this.idCharity = data.charity.idt;
+        api
+          .get(`/api/moderator/charity/${data.charity.idt}/get-all`, {
+            auth: {
+              username: "thalesinfoifsp@gmail.com",
+              password: "thaleslindo",
+            },
+          })
+          .then((res) => {
+            const data = res.data;
+            this.moderators = data;
+          });
+      });
+  },
   setup() {
-    const moderators = [
-      { name: "Thales Mantovani Silva" },
-      { name: "Raissa Sabino Cunha" },
-      { name: "Paulo Moraes" },
-      { name: "Juliano Torres" },
-    ];
     return {
-      moderators,
       dialog: ref(false),
       addDialog: ref(false),
       maximizedToggle: ref(true),
       selected: ref(0),
       canEdit: ref(false),
+      canEditCreate: ref(false),
     };
   },
   computed: {
@@ -354,22 +389,139 @@ export default defineComponent({
   },
 
   methods: {
+    handleRefresh() {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      api
+        .get("/api/moderator/" + user.moderatorId, {
+          auth: {
+            username: "thalesinfoifsp@gmail.com",
+            password: "thaleslindo",
+          },
+        })
+        .then((res) => {
+          const data = res.data;
+          this.idCharity = data.charity.idt;
+          api
+            .get(`/api/moderator/charity/${data.charity.idt}/get-all`, {
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+            })
+            .then((res) => {
+              const data = res.data;
+              this.moderators = data;
+            });
+        });
+    },
     handleEditInfo() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (this.selected.moderatorId === user.moderatorId) {
+        alert("Não é possível alterar a si próprio.");
+        return;
+      }
+      if (!this.moderatorCanEdit) {
+        alert("Você não tem permissão para editar.");
+        return;
+      }
+
       this.$refs.editForm.validate(false).then((valid) => {
         if (valid) {
           this.handlingEdit = true;
           this.formError = null;
 
-          setTimeout(() => {
-            this.handlingEdit = false;
-            this.dialog = false;
-          }, 3000);
-        } else {
+          api
+            .put(
+              `/api/moderator/${this.selected.moderatorId}?idtChangeAgent=${user.moderatorId}&canEdit=${this.canEdit}`,
+              {},
+              {
+                auth: {
+                  username: "thalesinfoifsp@gmail.com",
+                  password: "thaleslindo",
+                },
+              }
+            )
+            .then((res) => this.handleRefresh());
+
+          this.handlingEdit = false;
+          this.dialog = false;
         }
       });
     },
     addNewModerator() {
-      this.addDialog = false;
+      if (this.email) {
+        api
+          .get("/api/user/email?email=" + this.email, {
+            auth: {
+              username: "thalesinfoifsp@gmail.com",
+              password: "thaleslindo",
+            },
+          })
+          .then((res) => {
+            const data = res.data;
+            api
+              .post(
+                "/api/moderator/create",
+                {
+                  canEdit: this.canEditCreate,
+                  charityIdt: this.idCharity,
+                  userIdt: data.idt,
+                },
+                {
+                  auth: {
+                    username: "thalesinfoifsp@gmail.com",
+                    password: "thaleslindo",
+                  },
+                }
+              )
+              .then((res) => this.handleRefresh());
+          });
+        this.addDialog = false;
+      }
+    },
+    selectModerator(itemString) {
+      const item = JSON.parse(itemString);
+      const user = item.user;
+      this.selected = user;
+      this.name = user.name;
+      this.cnpj = user.document;
+      this.cep = user.address.cep;
+      this.city = user.address.city;
+      this.uf = user.address.uf;
+      this.street = user.address.street;
+      this.number = user.address.number;
+      this.district = user.address.district;
+      this.dialog = true;
+      this.canEdit = item.canEdit;
+    },
+    deleteModerator(itemString) {
+      const item = JSON.parse(itemString);
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (!this.moderatorCanEdit) {
+        alert("Você não tem permissão para excluir.");
+        return;
+      }
+
+      if (item.user.idt === user.idt) {
+        alert("Não é possível excluir a si próprio.");
+        return;
+      }
+      const r = confirm("Tem certeza que deseja excluir esse moderador?");
+      if (r) {
+        api
+          .delete(
+            `/api/moderator/${item.user.moderatorId}?idtChangeAgent=${user.moderatorId}`,
+            {
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+            }
+          )
+          .then((res) => this.handleRefresh());
+      }
     },
   },
 });

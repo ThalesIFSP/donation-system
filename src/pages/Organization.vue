@@ -13,7 +13,32 @@
 
     <h4 class="q-ma-lg">Instituição</h4>
 
-    <!-- Line 1 Nome -->
+    <!-- Line 1 Imagem Principal -->
+    <div class="row col-12">
+      <div class="col-3 q-ma-lg q-px-lg">
+        <span class="fnt-regular fnt-size-20">Imagem</span>
+        <q-file
+          color="#4161d3"
+          outlined
+          v-model="img"
+          label="Banner 700x350 pixels"
+          @update:model-value="(val) => updateImg(val)"
+        >
+          <template v-slot:prepend>
+            <q-icon name="cloud_upload" />
+          </template>
+        </q-file>
+      </div>
+      <div class="col-7 q-ma-lg q-px-lg">
+        <img
+          alt="Banner image."
+          :src="imgUrl"
+          style="width: 700px; height: 350px"
+        />
+      </div>
+    </div>
+
+    <!-- Line 1 Logo -->
     <div class="row col-12">
       <div class="col-3 q-ma-lg q-px-lg">
         <span class="fnt-regular fnt-size-20">Logo</span>
@@ -22,7 +47,7 @@
           outlined
           v-model="logo"
           label="Logo 150x150 pixels"
-          @update:model-value="(val) => updateFile(val)"
+          @update:model-value="(val) => updateLogo(val)"
         >
           <template v-slot:prepend>
             <q-icon name="cloud_upload" />
@@ -148,7 +173,7 @@
       <q-btn
         :loading="handlingEdit"
         color="primary"
-        @click="handleEditInfo(3)"
+        @click="handleEditInfo()"
         class="poppins text-h4 col-4"
         no-caps
       >
@@ -163,6 +188,7 @@
 </template>
 
 <script>
+import { api } from "src/boot/axios";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
@@ -175,16 +201,21 @@ export default defineComponent({
       passwordVisible: false,
       handlingEdit,
 
+      //Charity variables
+      idCharity: null,
+      moderatorCanEdit: null,
       // Form variables
       name: null,
       description: null,
       file: null,
+      groupName: null,
       cep: null,
       city: null,
       uf: null,
       street: null,
       number: null,
       district: null,
+      complement: null,
 
       formRules: this.parseFormRules([
         {
@@ -217,16 +248,72 @@ export default defineComponent({
       formError: null,
     };
   },
+
+  created() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    api
+      .get("/api/moderator/" + user.moderatorId, {
+        auth: { username: "thalesinfoifsp@gmail.com", password: "thaleslindo" },
+      })
+      .then((res) => {
+        const data = res.data;
+        this.moderatorCanEdit = data.canEdit;
+        this.description = data.charity.desc;
+        this.name = data.charity.name;
+        this.groupName = data.charity.groupName;
+
+        this.cep = data.charity.address.cep;
+        this.city = data.charity.address.city;
+        this.uf = data.charity.address.state;
+        this.street = data.charity.address.street;
+        this.number = data.charity.address.number;
+        this.district = data.charity.address.district;
+        this.complement = data.charity.address.complement;
+        this.idCharity = data.charity.idt;
+
+        api
+          .get(`/api/charity/${data.charity.idt}/img`, {
+            auth: {
+              username: "thalesinfoifsp@gmail.com",
+              password: "thaleslindo",
+            },
+          })
+          .then((res) => {
+            const data = res.data;
+            let imageFile = this.dataURLtoFile(
+              "data:image/png;base64," + data.img,
+              "img.png"
+            );
+
+            let logoFile = this.dataURLtoFile(
+              "data:image/png;base64," + data.logo,
+              "logo.png"
+            );
+            this.img = imageFile;
+            this.logo = logoFile;
+            this.updateImg();
+            this.updateLogo();
+          });
+      });
+  },
+
   setup() {
     const logo = ref(null);
     const logoUrl = ref("");
+    const img = ref(null);
+    const imgUrl = ref("");
 
     return {
       logo,
       logoUrl,
+      img,
+      imgUrl,
 
-      updateFile(val) {
+      updateLogo(val) {
         logoUrl.value = URL.createObjectURL(logo.value);
+      },
+      updateImg(val) {
+        imgUrl.value = URL.createObjectURL(img.value);
       },
     };
   },
@@ -258,18 +345,97 @@ export default defineComponent({
 
   methods: {
     handleEditInfo() {
+      if (!this.moderatorCanEdit) {
+        alert("Você não tem permissão para editar.");
+        return;
+      }
+
       this.$refs.editForm.validate(false).then((valid) => {
         if (valid) {
+          const user = JSON.parse(localStorage.getItem("user"));
           this.handlingEdit = true;
+          //Salva informações
+          api.put(
+            `/api/charity/${this.idCharity}?idtModerator=${user.moderatorId}`,
+            {
+              address: {
+                cep: this.cep,
+                city: this.city,
+                complement: "",
+                district: this.district,
+                number: this.number,
+                state: this.uf,
+                street: this.street,
+              },
+              desc: this.description,
+              groupName: this.groupName,
+              name: this.name,
+            },
+            {
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+            }
+          );
+
+          //Salvar logo
+          const logoFormData = new FormData();
+
+          logoFormData.append("file", this.logo);
+
+          api.put(
+            `/api/charity/{id}/change-logo?idt=${this.idCharity}`,
+            logoFormData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+              transformRequest: (formData) => formData,
+            }
+          );
+
+          const imgFormData = new FormData();
+
+          imgFormData.append("file", this.img);
+
+          api.put(
+            `/api/charity/{id}/change-img?idt=${this.idCharity}`,
+            imgFormData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+              transformRequest: (formData) => formData,
+            }
+          );
 
           this.formError = null;
-
-          setTimeout(() => {
-            this.handlingEdit = false;
-          }, 3000);
+          this.handlingEdit = false;
         } else {
         }
       });
+    },
+    dataURLtoFile(dataurl, filename) {
+      var arr = dataurl.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      return new File([u8arr], filename, { type: mime });
     },
   },
 });

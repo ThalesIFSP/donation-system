@@ -3,9 +3,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
+import { Buffer } from "buffer";
 
+globalThis.Buffer = Buffer;
 export default defineComponent({
-  name: 'App'
-})
+  name: "App",
+});
 </script>

@@ -27,12 +27,12 @@
         />
       </div>
       <div class="col-5 q-ma-lg q-px-lg">
-        <span class="fnt-regular fnt-size-20">CNPJ</span>
+        <span class="fnt-regular fnt-size-20">CPF</span>
         <q-input
           readonly
           placeholder="XXXX.XXX.XXX/XXX-XX"
           class="poppins fnt-size-18"
-          v-model="cnpj"
+          v-model="cpf"
           lazy-rules
         />
       </div>
@@ -46,11 +46,9 @@
           placeholder="example@email.com"
           class="poppins fnt-size-18"
           v-model="email"
-          :rules="formRules.email"
-          :error="!!emailError"
-          :error-message="emailError"
           lazy-rules
           aria-autocomplete="email"
+          readonly
         />
       </div>
 
@@ -184,15 +182,17 @@ export default defineComponent({
 
       // Form variables
       name: null,
-      cnpj: "55.555.555/0001-55",
+      cpf: "555.555.555-55",
       cep: null,
       city: null,
       uf: null,
       street: null,
       number: null,
       district: null,
+      complement: null,
       email: null,
       password: null,
+      userData: null,
 
       formRules: this.parseFormRules([
         {
@@ -228,6 +228,7 @@ export default defineComponent({
 
   created() {
     const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user);
 
     api
       .get("/api/user/" + user.idt, {
@@ -235,8 +236,9 @@ export default defineComponent({
       })
       .then((res) => {
         const data = res.data;
+        this.userData = data;
         this.name = data.name;
-        this.cnpj = data.document;
+        this.cpf = data.document;
         this.email = data.email;
         this.password = "*********************";
 
@@ -246,6 +248,7 @@ export default defineComponent({
         this.street = data.address.street;
         this.number = data.address.number;
         this.district = data.address.district;
+        this.complement = data.address.complement;
       });
   },
 
@@ -280,12 +283,43 @@ export default defineComponent({
       this.$refs.editForm.validate(false).then((valid) => {
         if (valid) {
           this.handlingEdit = true;
+          const user = JSON.parse(localStorage.getItem("user"));
 
+          const newUser = {
+            address: {
+              cep: this.cep,
+              city: this.city,
+              state: this.uf,
+              street: this.street,
+              number: this.number,
+              district: this.district,
+              complement: this.complement,
+            },
+            device: this.userData.device,
+            document: this.userData.document,
+            email: this.userData.email,
+            name: this.name,
+            phone: this.userData.phone,
+            sendEmail: this.userData.sendEmail,
+            sendWhatsApp: this.userData.sendWhatsApp,
+            idt: this.userData.idt,
+            moderatorId: this.userData.moderatorId,
+          };
+
+          api
+            .put(`/api/user/${user.idt}`, newUser, {
+              auth: {
+                username: "thalesinfoifsp@gmail.com",
+                password: "thaleslindo",
+              },
+            })
+            .then(() => {
+              alert("Dados atualizados!");
+              localStorage.setItem("user", JSON.stringify(newUser));
+            });
           this.formError = null;
 
-          setTimeout(() => {
-            this.handlingEdit = false;
-          }, 3000);
+          this.handlingEdit = false;
         } else {
         }
       });

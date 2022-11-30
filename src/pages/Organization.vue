@@ -417,6 +417,7 @@ export default defineComponent({
               transformRequest: (formData) => formData,
             }
           );
+          alert("Os dados foram atualizados!");
 
           this.formError = null;
           this.handlingEdit = false;

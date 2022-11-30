@@ -1,6 +1,6 @@
-# Donation System (donation-system)
+# Site para controle de doações
 
-Donation system for tcc 2022
+Projeto desenvolvido para o TCC, contemplando este site e um aplicativo.
 
 ## Install the dependencies
 ```bash
